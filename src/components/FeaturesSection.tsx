@@ -6,51 +6,57 @@ import {
   Layers,
   Palette,
   ShieldCheck,
+  FileDown,
 } from 'lucide-react';
+import { Translations } from '../i18n/translations';
 
-export const FeaturesSection: React.FC = () => {
+interface FeaturesSectionProps {
+  t: Translations;
+}
+
+export const FeaturesSection: React.FC<FeaturesSectionProps> = ({ t }) => {
   const features = [
     {
       icon: FileSpreadsheet,
-      color: 'blue',
-      title: 'CSV to PDF',
-      desc: 'Instantly convert comma-separated values into clean, paginated, and formatted PDF documents with zero data distortion.',
-      badge: 'Lightweight & Fast',
+      title: t.featCsvTitle,
+      desc: t.featCsvDesc,
+      badge: 'CSV',
     },
     {
       icon: FileCheck,
-      color: 'emerald',
-      title: 'XLS to PDF',
-      desc: 'Seamless compatibility with legacy Excel 97-2004 binary (.xls) workbooks, preserving formatting and data formulas accurately.',
-      badge: 'Legacy Support',
+      title: t.featXlsTitle,
+      desc: t.featXlsDesc,
+      badge: 'XLS',
     },
     {
       icon: FileCode,
-      color: 'indigo',
-      title: 'XLSX to PDF',
-      desc: 'Full support for modern OpenXML Excel (.xlsx) workbooks, handling multiple sheets, date fields, and high-precision numbers.',
-      badge: 'Modern Excel',
+      title: t.featXlsxTitle,
+      desc: t.featXlsxDesc,
+      badge: 'XLSX',
+    },
+    {
+      icon: FileDown,
+      title: t.featPdfToSheetTitle,
+      desc: t.featPdfToSheetDesc,
+      badge: 'PDF ➔ Excel',
     },
     {
       icon: Layers,
-      color: 'purple',
-      title: 'Multi-Sheet Support',
-      desc: 'Convert multiple worksheets into a unified PDF file or pick specific tabs. Automatic page breaks between sheets with clear titles.',
-      badge: 'Batch Worksheets',
+      title: t.featMultiSheetTitle,
+      desc: t.featMultiSheetDesc,
+      badge: 'Multi-Sheet',
     },
     {
       icon: Palette,
-      color: 'amber',
-      title: 'Custom PDF Layout',
-      desc: 'Tailor page orientation (portrait/landscape), paper sizes (A4, Letter, A3, Legal), fonts, zebra striping, and cell margins.',
-      badge: 'Design Freedom',
+      title: t.featCustomLayoutTitle,
+      desc: t.featCustomLayoutDesc,
+      badge: 'CAD $ / Layout',
     },
     {
       icon: ShieldCheck,
-      color: 'teal',
-      title: 'Secure Processing',
-      desc: 'Your files are processed securely and are not shared. Everything runs 100% client-side in your web browser with zero server uploads.',
-      badge: 'Zero Telemetry',
+      title: t.featSecureTitle,
+      desc: t.featSecureDesc,
+      badge: 'Privacy 100%',
     },
   ];
 
@@ -59,34 +65,36 @@ export const FeaturesSection: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-12">
           <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-200/60">
-            Enterprise Grade Engine
+            {t.featuresHeadingTag}
           </span>
           <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mt-3 tracking-tight">
-            Comprehensive Spreadsheet to PDF Conversion
+            {t.featuresTitle}
           </h2>
           <p className="mt-3 text-slate-600 text-sm sm:text-base leading-relaxed">
-            Built from the ground up to handle wide columns, massive row counts, and professional PDF output directly in your browser.
+            {t.featuresSubtitle}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {features.map((feature) => {
             const Icon = feature.icon;
             return (
               <div
                 key={feature.title}
-                className="p-6 rounded-2xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-blue-300 hover:shadow-md transition-all group"
+                className="p-5 rounded-2xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-blue-300 hover:shadow-md transition-all group flex flex-col justify-between"
               >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-11 h-11 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-blue-600 shadow-2xs group-hover:scale-105 group-hover:border-blue-200 transition-all">
-                    <Icon className="w-5 h-5" />
+                <div>
+                  <div className="flex items-center justify-between mb-3.5">
+                    <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-blue-600 shadow-2xs group-hover:scale-105 group-hover:border-blue-200 transition-all">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200/60">
+                      {feature.badge}
+                    </span>
                   </div>
-                  <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200/60">
-                    {feature.badge}
-                  </span>
+                  <h3 className="text-sm font-bold text-slate-900 mb-1.5">{feature.title}</h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">{feature.desc}</p>
                 </div>
-                <h3 className="text-base font-bold text-slate-900 mb-2">{feature.title}</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">{feature.desc}</p>
               </div>
             );
           })}

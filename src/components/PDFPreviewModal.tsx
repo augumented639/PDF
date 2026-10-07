@@ -9,17 +9,20 @@ import {
   FileSpreadsheet,
 } from 'lucide-react';
 import { GeneratedPDFResult } from '../types';
+import { Translations } from '../i18n/translations';
 
 interface PDFPreviewModalProps {
   pdfResult: GeneratedPDFResult | null;
   onClose: () => void;
   onReset: () => void;
+  t: Translations;
 }
 
 export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
   pdfResult,
   onClose,
   onReset,
+  t,
 }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
@@ -40,7 +43,6 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
         iframeRef.current.contentWindow.focus();
         iframeRef.current.contentWindow.print();
       } catch (err) {
-        // Fallback: open in new tab for print
         window.open(pdfResult.blobUrl, '_blank');
       }
     } else {
@@ -51,7 +53,7 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 B';
     const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const sizes = ['B', 'Ko', 'Mo', 'Go'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
@@ -71,15 +73,17 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
                   {pdfResult.fileName}
                 </h3>
                 <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
-                  Ready
+                  {t.readyBadge}
                 </span>
               </div>
               <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
-                <span>{pdfResult.pageCount} {pdfResult.pageCount === 1 ? 'Page' : 'Pages'}</span>
+                <span>
+                  {pdfResult.pageCount} {pdfResult.pageCount === 1 ? t.pageCountSingular : t.pageCountPlural}
+                </span>
                 <span>•</span>
                 <span>{formatFileSize(pdfResult.fileSizeBytes)}</span>
                 <span>•</span>
-                <span>Vector PDF</span>
+                <span>{t.vectorPdfBadge}</span>
               </div>
             </div>
           </div>
@@ -93,7 +97,7 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 shadow-md shadow-blue-500/20 transition-all cursor-pointer"
             >
               <Download className="w-4 h-4" />
-              <span>Download PDF</span>
+              <span>{t.downloadPdfBtn}</span>
             </button>
 
             {/* Print PDF button */}
@@ -101,10 +105,10 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
               type="button"
               onClick={handlePrint}
               className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 shadow-2xs transition-colors cursor-pointer"
-              title="Print document"
+              title={t.printBtn}
             >
               <Printer className="w-4 h-4 text-slate-600" />
-              <span>Print</span>
+              <span>{t.printBtn}</span>
             </button>
 
             {/* Close / Edit settings */}
@@ -112,10 +116,10 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
               type="button"
               onClick={onClose}
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
-              title="Adjust styling and settings"
+              title={t.editSettingsBtn}
             >
               <Sliders className="w-4 h-4 text-slate-500" />
-              <span className="hidden sm:inline">Edit Settings</span>
+              <span className="hidden sm:inline">{t.editSettingsBtn}</span>
             </button>
 
             {/* Close X */}
@@ -123,7 +127,7 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
               type="button"
               onClick={onClose}
               className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
-              aria-label="Close Preview"
+              aria-label="Close"
             >
               <X className="w-5 h-5" />
             </button>
@@ -144,7 +148,7 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
         <div className="px-5 py-3 border-t border-slate-200 bg-white flex flex-wrap items-center justify-between text-xs text-slate-600 gap-3">
           <div className="flex items-center gap-2 text-slate-500">
             <FileSpreadsheet className="w-4 h-4 text-blue-600" />
-            <span>High-fidelity table rendering • Crisp vector fonts on print</span>
+            <span>{t.previewSubtext}</span>
           </div>
 
           <div className="flex items-center gap-3">
@@ -154,7 +158,7 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
               className="inline-flex items-center gap-1.5 font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>Convert Another File</span>
+              <span>{t.convertAnotherFileBtn}</span>
             </button>
 
             <button
@@ -162,7 +166,7 @@ export const PDFPreviewModal: React.FC<PDFPreviewModalProps> = ({
               onClick={handleDownload}
               className="font-bold text-blue-600 hover:text-blue-800"
             >
-              Direct Download Link
+              {t.directDownloadLink}
             </button>
           </div>
         </div>

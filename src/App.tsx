@@ -1,31 +1,58 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { FileUploader } from './components/FileUploader';
 import { SpreadsheetPreview } from './components/SpreadsheetPreview';
 import { PDFSettingsPanel } from './components/PDFSettingsPanel';
 import { PDFPreviewModal } from './components/PDFPreviewModal';
+import { PdfToSheetView } from './components/PdfToSheetView';
 import { HowItWorksModal } from './components/HowItWorksModal';
 import { FeaturesSection } from './components/FeaturesSection';
 import { Footer } from './components/Footer';
 import { ConversionFlowSteps } from './components/ConversionFlowSteps';
-import { ParsedWorkbook, PDFConfig, GeneratedPDFResult } from './types';
+import { ParsedWorkbook, PDFConfig, GeneratedPDFResult, ConversionMode } from './types';
 import { DEFAULT_PDF_CONFIG, generatePDF } from './utils/pdfGenerator';
 import { parseSpreadsheetFile } from './utils/spreadsheetParser';
-import { createFinancialReportWorkbook, createSalesCSVWorkbook } from './utils/sampleData';
+import { extractTablesFromPDF } from './utils/pdfTableExtractor';
+import {
+  createFinancialReportWorkbook,
+  createSalesCSVWorkbook,
+  generateSampleCanadianPDF,
+} from './utils/sampleData';
+import { Language, translations } from './i18n/translations';
 
 export default function App() {
+  // Language & Mode
+  const [language, setLanguage] = useState<Language>(() => {
+    if (typeof window !== 'undefined' && navigator.language) {
+      if (navigator.language.toLowerCase().startsWith('fr')) return 'fr';
+    }
+    return 'en';
+  });
+
+  const [mode, setMode] = useState<ConversionMode>('sheet-to-pdf');
+
+  const t = translations[language];
+
+  // Document state
   const [workbook, setWorkbook] = useState<ParsedWorkbook | null>(null);
+  const [pdfPageCount, setPdfPageCount] = useState<number>(1);
   const [activeSheetIndex, setActiveSheetIndex] = useState<number>(0);
   const [config, setConfig] = useState<PDFConfig>(DEFAULT_PDF_CONFIG);
   const [isProcessingFile, setIsProcessingFile] = useState(false);
   const [fileErrorMessage, setFileErrorMessage] = useState<string | undefined>(undefined);
 
+  // PDF generation state
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [pdfResult, setPdfResult] = useState<GeneratedPDFResult | null>(null);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
 
   const uploadAreaRef = useRef<HTMLDivElement>(null);
+
+  // Update HTML title & lang on language change
+  useEffect(() => {
+    document.documentElement.lang = language === 'fr' ? 'fr-CA' : 'en-CA';
+  }, [language]);
 
   // When a workbook is loaded, initialize column selections and sheet selections
   const setupWorkbookDefaults = (wb: ParsedWorkbook) => {
@@ -48,25 +75,44 @@ export default function App() {
     setFileErrorMessage(undefined);
   };
 
-  // Handle uploaded file
+  // Handle uploaded file (Spreadsheet or PDF depending on mode)
   const handleFileSelected = async (file: File) => {
     setIsProcessingFile(true);
     setFileErrorMessage(undefined);
 
     try {
-      const result = await parseSpreadsheetFile(file);
-      if (result.success && result.workbook) {
-        setWorkbook(result.workbook);
-        setupWorkbookDefaults(result.workbook);
+      const fileNameLower = file.name.toLowerCase();
+
+      if (mode === 'pdf-to-sheet' || fileNameLower.endsWith('.pdf')) {
+        // PDF to Spreadsheet mode
+        if (!fileNameLower.endsWith('.pdf')) {
+          setFileErrorMessage(t.errorUnsupportedFile);
+          setIsProcessingFile(false);
+          return;
+        }
+
+        const extractResult = await extractTablesFromPDF(file, file.name);
+        if (extractResult.success && extractResult.workbook) {
+          setMode('pdf-to-sheet');
+          setWorkbook(extractResult.workbook);
+          setPdfPageCount(extractResult.pageCount || 1);
+          setupWorkbookDefaults(extractResult.workbook);
+        } else {
+          setFileErrorMessage(extractResult.errorMessage || t.errorPdfParseFailed);
+        }
       } else {
-        setFileErrorMessage(
-          result.errorMessage ||
-            'Sorry, we couldn’t read this spreadsheet. Please verify that the file is not corrupted and try again.'
-        );
+        // Spreadsheet to PDF mode
+        const result = await parseSpreadsheetFile(file);
+        if (result.success && result.workbook) {
+          setWorkbook(result.workbook);
+          setupWorkbookDefaults(result.workbook);
+        } else {
+          setFileErrorMessage(result.errorMessage || t.errorCorruptedSpreadsheet);
+        }
       }
     } catch (err: any) {
       console.error(err);
-      setFileErrorMessage('Sorry, an unexpected error occurred while parsing the file. Please try again.');
+      setFileErrorMessage(t.errorCorruptedSpreadsheet);
     } finally {
       setIsProcessingFile(false);
     }
@@ -77,6 +123,7 @@ export default function App() {
     setIsProcessingFile(true);
     setTimeout(() => {
       const sampleWb = createFinancialReportWorkbook();
+      setMode('sheet-to-pdf');
       setWorkbook(sampleWb);
       setupWorkbookDefaults(sampleWb);
       setIsProcessingFile(false);
@@ -87,10 +134,32 @@ export default function App() {
     setIsProcessingFile(true);
     setTimeout(() => {
       const sampleWb = createSalesCSVWorkbook();
+      setMode('sheet-to-pdf');
       setWorkbook(sampleWb);
       setupWorkbookDefaults(sampleWb);
       setIsProcessingFile(false);
     }, 200);
+  };
+
+  const handleLoadPdfInvoiceSample = async () => {
+    setIsProcessingFile(true);
+    try {
+      const samplePdfFile = generateSampleCanadianPDF();
+      const extractResult = await extractTablesFromPDF(samplePdfFile, samplePdfFile.name);
+      if (extractResult.success && extractResult.workbook) {
+        setMode('pdf-to-sheet');
+        setWorkbook(extractResult.workbook);
+        setPdfPageCount(extractResult.pageCount || 1);
+        setupWorkbookDefaults(extractResult.workbook);
+      } else {
+        setFileErrorMessage(extractResult.errorMessage || t.errorPdfParseFailed);
+      }
+    } catch (e) {
+      console.error(e);
+      setFileErrorMessage(t.errorPdfParseFailed);
+    } finally {
+      setIsProcessingFile(false);
+    }
   };
 
   // Reset converter state
@@ -105,12 +174,16 @@ export default function App() {
     setFileErrorMessage(undefined);
   };
 
+  const handleModeChange = (newMode: ConversionMode) => {
+    handleReset();
+    setMode(newMode);
+  };
+
   // Column toggle
   const handleToggleColumn = (sheetName: string, columnName: string) => {
     const currentCols = config.selectedColumnsBySheet[sheetName] || [];
     let updatedCols: string[];
     if (currentCols.includes(columnName)) {
-      // Don't allow unselecting all columns completely
       if (currentCols.length > 1) {
         updatedCols = currentCols.filter((c) => c !== columnName);
       } else {
@@ -152,9 +225,7 @@ export default function App() {
       setPdfResult(result);
     } catch (err: any) {
       console.error('PDF generation error:', err);
-      setFileErrorMessage(
-        'Sorry, we encountered an issue generating the PDF. Please check your margin or font settings and try again.'
-      );
+      setFileErrorMessage(t.errorCorruptedSpreadsheet);
     } finally {
       setIsGeneratingPDF(false);
     }
@@ -164,9 +235,8 @@ export default function App() {
     uploadAreaRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Determine current step for progress indicator
   const getCurrentStep = (): 1 | 2 | 3 | 4 | 5 => {
-    if (pdfResult) return 5;
+    if (pdfResult || (mode === 'pdf-to-sheet' && workbook)) return 5;
     if (isGeneratingPDF) return 4;
     if (workbook) return 2;
     return 1;
@@ -174,11 +244,16 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans selection:bg-blue-100 selection:text-blue-900">
-      {/* Global Header */}
+      {/* Global Header with bilingual toggle and mode switcher */}
       <Header
         onOpenHowItWorks={() => setShowHowItWorks(true)}
         onReset={handleReset}
         hasFile={!!workbook}
+        language={language}
+        onLanguageChange={setLanguage}
+        mode={mode}
+        onModeChange={handleModeChange}
+        t={t}
       />
 
       {/* Progress Steps Indicator */}
@@ -188,6 +263,7 @@ export default function App() {
           if (step === 1) handleReset();
           if (step === 2 && pdfResult) setPdfResult(null);
         }}
+        t={t}
       />
 
       {/* If NO workbook is loaded: show Landing Hero */}
@@ -197,7 +273,10 @@ export default function App() {
           onOpenHowItWorks={() => setShowHowItWorks(true)}
           onLoadFinancialSample={handleLoadFinancialSample}
           onLoadSalesSample={handleLoadSalesSample}
+          onLoadPdfInvoiceSample={handleLoadPdfInvoiceSample}
           isLoadingSample={isProcessingFile}
+          t={t}
+          mode={mode}
         />
       )}
 
@@ -212,19 +291,23 @@ export default function App() {
             isProcessing={isProcessingFile}
             errorMessage={fileErrorMessage}
             onClearError={() => setFileErrorMessage(undefined)}
+            t={t}
+            mode={mode}
           />
         </div>
 
-        {/* When spreadsheet is loaded: Show Dual Column Desktop Layout */}
-        {workbook && (
+        {/* When spreadsheet is loaded: Show Dual Column Desktop Layout (Sheet to PDF) */}
+        {workbook && mode === 'sheet-to-pdf' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Left Column: Spreadsheet Interactive Table Preview */}
             <div className="lg:col-span-7 xl:col-span-8 space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-bold text-slate-900 tracking-tight">Spreadsheet Data Preview</h2>
+                  <h2 className="text-lg font-bold text-slate-900 tracking-tight">
+                    {t.spreadsheetPreviewTitle}
+                  </h2>
                   <p className="text-xs text-slate-500">
-                    Live view of worksheet data. Filter columns or sort rows before exporting.
+                    {t.spreadsheetPreviewSubtitle}
                   </p>
                 </div>
               </div>
@@ -236,6 +319,7 @@ export default function App() {
                 config={config}
                 onToggleColumn={handleToggleColumn}
                 onSelectAllColumns={handleSelectAllColumns}
+                t={t}
               />
             </div>
 
@@ -247,17 +331,28 @@ export default function App() {
                 onChangeConfig={setConfig}
                 onGeneratePDF={handleGeneratePDF}
                 isGenerating={isGeneratingPDF}
+                t={t}
               />
             </div>
           </div>
         )}
 
+        {/* When PDF is loaded in PDF to Sheet mode: Show Extracted Tables & Direct Downloads */}
+        {workbook && mode === 'pdf-to-sheet' && (
+          <PdfToSheetView
+            workbook={workbook}
+            pageCount={pdfPageCount}
+            t={t}
+            onReset={handleReset}
+          />
+        )}
+
         {/* Features Showcase Section on Landing */}
-        {!workbook && <FeaturesSection />}
+        {!workbook && <FeaturesSection t={t} />}
       </main>
 
       {/* Footer */}
-      <Footer />
+      <Footer t={t} />
 
       {/* PDF Result Preview Modal */}
       {pdfResult && (
@@ -265,6 +360,7 @@ export default function App() {
           pdfResult={pdfResult}
           onClose={() => setPdfResult(null)}
           onReset={handleReset}
+          t={t}
         />
       )}
 
@@ -272,6 +368,7 @@ export default function App() {
       <HowItWorksModal
         isOpen={showHowItWorks}
         onClose={() => setShowHowItWorks(false)}
+        t={t}
       />
     </div>
   );

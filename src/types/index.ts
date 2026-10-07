@@ -20,6 +20,7 @@ export type MarginOption = 'none' | 'narrow' | 'normal' | 'wide' | 'custom';
 export type SheetSelectionMode = 'current' | 'all' | 'specific';
 export type Alignment = 'left' | 'center' | 'right';
 export type TableTheme = 'corporate-blue' | 'slate-dark' | 'emerald' | 'amber' | 'crimson' | 'minimal-mono' | 'custom';
+export type ConversionMode = 'sheet-to-pdf' | 'pdf-to-sheet';
 
 export interface PDFConfig {
   // Page settings

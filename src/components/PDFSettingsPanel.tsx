@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { PDFConfig, ParsedWorkbook, TableTheme, PageSize, PageOrientation, MarginOption } from '../types';
 import { THEME_PALETTES } from '../utils/pdfGenerator';
+import { Translations } from '../i18n/translations';
 
 interface PDFSettingsPanelProps {
   workbook: ParsedWorkbook;
@@ -17,6 +18,7 @@ interface PDFSettingsPanelProps {
   onChangeConfig: (newConfig: PDFConfig) => void;
   onGeneratePDF: () => void;
   isGenerating: boolean;
+  t: Translations;
 }
 
 export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
@@ -25,6 +27,7 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
   onChangeConfig,
   onGeneratePDF,
   isGenerating,
+  t,
 }) => {
   const [activeTab, setActiveTab] = useState<'layout' | 'content' | 'styling' | 'branding'>('layout');
 
@@ -58,8 +61,8 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
             <Sliders className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-900">PDF Customization</h3>
-            <p className="text-[11px] text-slate-500">Configure page layout, typography &amp; styling</p>
+            <h3 className="text-sm font-bold text-slate-900">{t.pdfCustomizationTitle}</h3>
+            <p className="text-[11px] text-slate-500">{t.pdfCustomizationSubtitle}</p>
           </div>
         </div>
       </div>
@@ -76,7 +79,7 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
           }`}
         >
           <Settings className="w-3.5 h-3.5" />
-          <span>Layout</span>
+          <span>{t.tabLayout}</span>
         </button>
 
         <button
@@ -89,7 +92,7 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
           }`}
         >
           <FileText className="w-3.5 h-3.5" />
-          <span>Branding</span>
+          <span>{t.tabBranding}</span>
         </button>
 
         <button
@@ -102,7 +105,7 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
           }`}
         >
           <Palette className="w-3.5 h-3.5" />
-          <span>Styling</span>
+          <span>{t.tabStyling}</span>
         </button>
 
         <button
@@ -115,7 +118,7 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
           }`}
         >
           <Layers className="w-3.5 h-3.5" />
-          <span>Scope</span>
+          <span>{t.tabScope}</span>
         </button>
       </div>
 
@@ -126,7 +129,7 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
           <div className="space-y-4 animate-fade-in">
             {/* Page Size */}
             <div>
-              <label className="block font-semibold text-slate-800 mb-1.5">Page Size</label>
+              <label className="block font-semibold text-slate-800 mb-1.5">{t.pageSizeLabel}</label>
               <div className="grid grid-cols-3 gap-2">
                 {(['a4', 'letter', 'legal', 'a3', 'custom'] as PageSize[]).map((size) => (
                   <button
@@ -147,7 +150,7 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
               {config.pageSize === 'custom' && (
                 <div className="grid grid-cols-2 gap-2 mt-2 p-2.5 bg-slate-50 rounded-lg border border-slate-200">
                   <div>
-                    <label className="text-[11px] text-slate-500 block mb-1">Width (mm)</label>
+                    <label className="text-[11px] text-slate-500 block mb-1">{t.widthMm}</label>
                     <input
                       type="number"
                       min={50}
@@ -158,7 +161,7 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] text-slate-500 block mb-1">Height (mm)</label>
+                    <label className="text-[11px] text-slate-500 block mb-1">{t.heightMm}</label>
                     <input
                       type="number"
                       min={50}
@@ -174,12 +177,12 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
 
             {/* Orientation */}
             <div>
-              <label className="block font-semibold text-slate-800 mb-1.5">Orientation</label>
+              <label className="block font-semibold text-slate-800 mb-1.5">{t.orientationLabel}</label>
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  { id: 'auto', label: 'Auto Detect', desc: 'Smart fit' },
-                  { id: 'portrait', label: 'Portrait', desc: 'Tall layout' },
-                  { id: 'landscape', label: 'Landscape', desc: 'Wide layout' },
+                  { id: 'auto', label: t.orientationAuto, desc: t.orientationAutoDesc },
+                  { id: 'portrait', label: t.orientationPortrait, desc: t.orientationPortraitDesc },
+                  { id: 'landscape', label: t.orientationLandscape, desc: t.orientationLandscapeDesc },
                 ].map((item) => (
                   <button
                     key={item.id}
@@ -200,7 +203,7 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
 
             {/* Margins */}
             <div>
-              <label className="block font-semibold text-slate-800 mb-1.5">Page Margins</label>
+              <label className="block font-semibold text-slate-800 mb-1.5">{t.marginsLabel}</label>
               <div className="grid grid-cols-4 gap-2">
                 {(['none', 'narrow', 'normal', 'wide'] as MarginOption[]).map((margin) => (
                   <button
@@ -229,8 +232,8 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
                   className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
                 />
                 <div>
-                  <span className="font-semibold text-slate-800">Fit table to page width</span>
-                  <p className="text-[11px] text-slate-500">Scales columns proportionally without cutoffs</p>
+                  <span className="font-semibold text-slate-800">{t.fitToWidth}</span>
+                  <p className="text-[11px] text-slate-500">{t.fitToWidthDesc}</p>
                 </div>
               </label>
 
@@ -242,8 +245,8 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
                   className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
                 />
                 <div>
-                  <span className="font-semibold text-slate-800">Repeat header on every page</span>
-                  <p className="text-[11px] text-slate-500">Helps readers follow columns on multi-page tables</p>
+                  <span className="font-semibold text-slate-800">{t.repeatHeader}</span>
+                  <p className="text-[11px] text-slate-500">{t.repeatHeaderDesc}</p>
                 </div>
               </label>
 
@@ -255,8 +258,8 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
                   className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
                 />
                 <div>
-                  <span className="font-semibold text-slate-800">Show cell borders &amp; gridlines</span>
-                  <p className="text-[11px] text-slate-500">Draws subtle separators between table cells</p>
+                  <span className="font-semibold text-slate-800">{t.showGridlines}</span>
+                  <p className="text-[11px] text-slate-500">{t.showGridlinesDesc}</p>
                 </div>
               </label>
 
@@ -268,8 +271,8 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
                   className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
                 />
                 <div>
-                  <span className="font-semibold text-slate-800">Include row number column (#)</span>
-                  <p className="text-[11px] text-slate-500">Adds an index counter at the left edge</p>
+                  <span className="font-semibold text-slate-800">{t.showRowNumbers}</span>
+                  <p className="text-[11px] text-slate-500">{t.showRowNumbersDesc}</p>
                 </div>
               </label>
 
@@ -281,8 +284,8 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
                   className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
                 />
                 <div>
-                  <span className="font-semibold text-slate-800">Print page numbers</span>
-                  <p className="text-[11px] text-slate-500">Displays "Page X of Y" in the document footer</p>
+                  <span className="font-semibold text-slate-800">{t.showPageNumbers}</span>
+                  <p className="text-[11px] text-slate-500">{t.showPageNumbersDesc}</p>
                 </div>
               </label>
             </div>
@@ -294,23 +297,23 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
           <div className="space-y-4 animate-fade-in">
             {/* Document Title */}
             <div>
-              <label className="block font-semibold text-slate-800 mb-1">Document Title</label>
+              <label className="block font-semibold text-slate-800 mb-1">{t.docTitleLabel}</label>
               <input
                 type="text"
-                placeholder="e.g. Q1 Regional Financial Report"
+                placeholder={t.docTitlePlaceholder}
                 value={config.documentTitle}
                 onChange={(e) => updateConfig({ documentTitle: e.target.value })}
                 className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               />
-              <p className="text-[11px] text-slate-400 mt-1">Leaves empty to use the original file name</p>
+              <p className="text-[11px] text-slate-400 mt-1">{t.docTitleHelp}</p>
             </div>
 
             {/* Company / Brand Name */}
             <div>
-              <label className="block font-semibold text-slate-800 mb-1">Company / Organization</label>
+              <label className="block font-semibold text-slate-800 mb-1">{t.companyLabel}</label>
               <input
                 type="text"
-                placeholder="e.g. Acme Corporation"
+                placeholder={t.companyPlaceholder}
                 value={config.companyName}
                 onChange={(e) => updateConfig({ companyName: e.target.value })}
                 className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
@@ -319,10 +322,10 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
 
             {/* Custom Header Text */}
             <div>
-              <label className="block font-semibold text-slate-800 mb-1">Custom Header Subtitle</label>
+              <label className="block font-semibold text-slate-800 mb-1">{t.customHeaderLabel}</label>
               <input
                 type="text"
-                placeholder="e.g. Confidential – Internal Use Only"
+                placeholder={t.customHeaderPlaceholder}
                 value={config.headerText}
                 onChange={(e) => updateConfig({ headerText: e.target.value })}
                 className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
@@ -331,10 +334,10 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
 
             {/* Custom Footer Text */}
             <div>
-              <label className="block font-semibold text-slate-800 mb-1">Custom Footer Note</label>
+              <label className="block font-semibold text-slate-800 mb-1">{t.customFooterLabel}</label>
               <input
                 type="text"
-                placeholder="e.g. Generated via Sheet to PDF Converter"
+                placeholder={t.customFooterPlaceholder}
                 value={config.footerText}
                 onChange={(e) => updateConfig({ footerText: e.target.value })}
                 className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
@@ -350,13 +353,13 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
                   onChange={(e) => updateConfig({ showDate: e.target.checked })}
                   className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
                 />
-                <span className="font-semibold text-slate-800">Print Generation Date</span>
+                <span className="font-semibold text-slate-800">{t.printDateLabel}</span>
               </label>
 
               {config.showDate && (
                 <input
                   type="text"
-                  placeholder="Leave empty for current date (or enter custom date)"
+                  placeholder={t.customDatePlaceholder}
                   value={config.customDateText}
                   onChange={(e) => updateConfig({ customDateText: e.target.value })}
                   className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs"
@@ -371,7 +374,7 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
           <div className="space-y-4 animate-fade-in">
             {/* Color Theme Presets */}
             <div>
-              <label className="block font-semibold text-slate-800 mb-2">Table Color Theme</label>
+              <label className="block font-semibold text-slate-800 mb-2">{t.tableColorTheme}</label>
               <div className="grid grid-cols-2 gap-2">
                 {Object.entries(THEME_PALETTES).map(([key, val]) => {
                   const isSelected = config.theme === key;
@@ -403,7 +406,7 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
             {/* Custom Color Pickers */}
             <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5">
               <div className="flex items-center justify-between">
-                <span className="font-medium text-slate-700">Header Background</span>
+                <span className="font-medium text-slate-700">{t.headerBg}</span>
                 <input
                   type="color"
                   value={config.headerBgColor}
@@ -418,7 +421,7 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="font-medium text-slate-700">Header Text Color</span>
+                <span className="font-medium text-slate-700">{t.headerTextColor}</span>
                 <input
                   type="color"
                   value={config.headerTextColor}
@@ -433,7 +436,7 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="font-medium text-slate-700">Alternate Row Zebra Color</span>
+                <span className="font-medium text-slate-700">{t.altRowZebra}</span>
                 <input
                   type="color"
                   value={config.alternateRowBgColor}
@@ -456,12 +459,12 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
                 onChange={(e) => updateConfig({ alternateRows: e.target.checked })}
                 className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
               />
-              <span className="font-semibold text-slate-800">Alternate row shading (zebra striping)</span>
+              <span className="font-semibold text-slate-800">{t.alternateRowsToggle}</span>
             </label>
 
             {/* Typography / Font selection */}
             <div>
-              <label className="block font-semibold text-slate-800 mb-1.5">PDF Font</label>
+              <label className="block font-semibold text-slate-800 mb-1.5">{t.pdfFontLabel}</label>
               <div className="grid grid-cols-3 gap-2">
                 {[
                   { id: 'helvetica', label: 'Helvetica', desc: 'Sans-serif' },
@@ -489,7 +492,7 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
             <div className="space-y-3 pt-2 border-t border-slate-100">
               <div>
                 <div className="flex justify-between font-medium text-slate-700 mb-1">
-                  <span>Table Font Size</span>
+                  <span>{t.tableFontSize}</span>
                   <span className="font-bold text-blue-600">{config.fontSize} pt</span>
                 </div>
                 <input
@@ -505,7 +508,7 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
 
               <div>
                 <div className="flex justify-between font-medium text-slate-700 mb-1">
-                  <span>Header Font Size</span>
+                  <span>{t.headerFontSize}</span>
                   <span className="font-bold text-blue-600">{config.headerFontSize} pt</span>
                 </div>
                 <input
@@ -521,7 +524,7 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
 
               <div>
                 <div className="flex justify-between font-medium text-slate-700 mb-1">
-                  <span>Cell Padding</span>
+                  <span>{t.cellPadding}</span>
                   <span className="font-bold text-blue-600">{config.cellPadding} mm</span>
                 </div>
                 <input
@@ -539,28 +542,28 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
             {/* Text & Number Alignments */}
             <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100">
               <div>
-                <label className="block font-semibold text-slate-800 mb-1">Text Alignment</label>
+                <label className="block font-semibold text-slate-800 mb-1">{t.textAlignLabel}</label>
                 <select
                   value={config.textAlignment}
                   onChange={(e) => updateConfig({ textAlignment: e.target.value as any })}
                   className="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs"
                 >
-                  <option value="left">Left Aligned</option>
-                  <option value="center">Centered</option>
-                  <option value="right">Right Aligned</option>
+                  <option value="left">{t.alignLeft}</option>
+                  <option value="center">{t.alignCenter}</option>
+                  <option value="right">{t.alignRight}</option>
                 </select>
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-800 mb-1">Number Alignment</label>
+                <label className="block font-semibold text-slate-800 mb-1">{t.numberAlignLabel}</label>
                 <select
                   value={config.numberAlignment}
                   onChange={(e) => updateConfig({ numberAlignment: e.target.value as any })}
                   className="w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs"
                 >
-                  <option value="right">Right Aligned (Standard)</option>
-                  <option value="center">Centered</option>
-                  <option value="left">Left Aligned</option>
+                  <option value="right">{t.alignRightStd}</option>
+                  <option value="center">{t.alignCenter}</option>
+                  <option value="left">{t.alignLeft}</option>
                 </select>
               </div>
             </div>
@@ -572,12 +575,12 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
           <div className="space-y-4 animate-fade-in">
             {/* Sheet Selection Mode */}
             <div>
-              <label className="block font-semibold text-slate-800 mb-1.5">Sheets to Include in PDF</label>
+              <label className="block font-semibold text-slate-800 mb-1.5">{t.sheetsToInclude}</label>
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  { id: 'all', label: 'All Sheets', desc: `${totalSheets} sheets` },
-                  { id: 'current', label: 'Current Sheet', desc: workbook.sheets[workbook.activeSheetIndex]?.name },
-                  { id: 'specific', label: 'Specific Sheets', desc: 'Custom pick' },
+                  { id: 'all', label: t.allSheets, desc: `${totalSheets} sheets` },
+                  { id: 'current', label: t.currentSheet, desc: workbook.sheets[workbook.activeSheetIndex]?.name },
+                  { id: 'specific', label: t.specificSheets, desc: 'Custom pick' },
                 ].map((item) => (
                   <button
                     key={item.id}
@@ -598,7 +601,7 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
               {/* Specific sheet selection checkboxes */}
               {config.sheetSelectionMode === 'specific' && (
                 <div className="mt-3 p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                  <span className="font-semibold text-slate-700 block mb-1">Select worksheets:</span>
+                  <span className="font-semibold text-slate-700 block mb-1">{t.selectWorksheets}</span>
                   {workbook.sheets.map((s) => {
                     const isChecked = config.selectedSheetNames.includes(s.name);
                     return (
@@ -635,17 +638,17 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
                 className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
               />
               <div>
-                <span className="font-semibold text-slate-800">Print Sheet Name heading</span>
-                <p className="text-[11px] text-slate-500">Shows "Sheet: [Name]" at the start of each worksheet</p>
+                <span className="font-semibold text-slate-800">{t.printSheetNameHeading}</span>
+                <p className="text-[11px] text-slate-500">{t.printSheetNameDesc}</p>
               </div>
             </label>
 
             {/* Row Range Filter */}
             <div className="pt-2 border-t border-slate-100">
-              <label className="block font-semibold text-slate-800 mb-1">Row Range (Optional)</label>
+              <label className="block font-semibold text-slate-800 mb-1">{t.rowRangeLabel}</label>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <span className="text-[11px] text-slate-500 block mb-1">Start Row</span>
+                  <span className="text-[11px] text-slate-500 block mb-1">{t.startRow}</span>
                   <input
                     type="number"
                     min={1}
@@ -655,7 +658,7 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
                   />
                 </div>
                 <div>
-                  <span className="text-[11px] text-slate-500 block mb-1">End Row (0 = All rows)</span>
+                  <span className="text-[11px] text-slate-500 block mb-1">{t.endRow}</span>
                   <input
                     type="number"
                     min={0}
@@ -681,18 +684,18 @@ export const PDFSettingsPanel: React.FC<PDFSettingsPanelProps> = ({
           {isGenerating ? (
             <>
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              <span>Generating PDF...</span>
+              <span>{t.convertingBtn}</span>
             </>
           ) : (
             <>
               <FileDown className="w-4 h-4" />
-              <span>Convert to PDF</span>
+              <span>{t.convertBtn}</span>
             </>
           )}
         </button>
 
         <p className="text-[11px] text-center text-slate-400 mt-2">
-          Fast client-side vector rendering • No file size limits
+          {t.clientSideGuarantee}
         </p>
       </div>
     </div>

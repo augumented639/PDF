@@ -14,6 +14,7 @@ import {
   Table as TableIcon,
 } from 'lucide-react';
 import { ParsedWorkbook, ParsedSheet, PDFConfig } from '../types';
+import { Translations } from '../i18n/translations';
 
 interface SpreadsheetPreviewProps {
   workbook: ParsedWorkbook;
@@ -22,6 +23,7 @@ interface SpreadsheetPreviewProps {
   config: PDFConfig;
   onToggleColumn: (sheetName: string, columnName: string) => void;
   onSelectAllColumns: (sheetName: string, all: boolean) => void;
+  t: Translations;
 }
 
 type SortDirection = 'asc' | 'desc' | null;
@@ -33,6 +35,7 @@ export const SpreadsheetPreview: React.FC<SpreadsheetPreviewProps> = ({
   config,
   onToggleColumn,
   onSelectAllColumns,
+  t,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortColIndex, setSortColIndex] = useState<number | null>(null);
@@ -129,7 +132,7 @@ export const SpreadsheetPreview: React.FC<SpreadsheetPreviewProps> = ({
         {workbook.sheets.length > 1 && (
           <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1 shrink-0 mr-1">
-              <Layers className="w-3.5 h-3.5" /> Sheets:
+              <Layers className="w-3.5 h-3.5" /> {t.sheetsLabel}
             </span>
             {workbook.sheets.map((sheet, idx) => {
               const isActive = idx === activeSheetIndex;
@@ -150,7 +153,7 @@ export const SpreadsheetPreview: React.FC<SpreadsheetPreviewProps> = ({
                       isActive ? 'bg-blue-700 text-blue-100' : 'bg-slate-100 text-slate-500'
                     }`}
                   >
-                    {sheet.rows.length} rows
+                    {sheet.rows.length}
                   </span>
                 </button>
               );
@@ -165,7 +168,7 @@ export const SpreadsheetPreview: React.FC<SpreadsheetPreviewProps> = ({
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder={`Search in ${activeSheet.name}...`}
+              placeholder={t.searchPlaceholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
@@ -176,7 +179,7 @@ export const SpreadsheetPreview: React.FC<SpreadsheetPreviewProps> = ({
                 onClick={() => setSearchTerm('')}
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600"
               >
-                Clear
+                {t.clearSearch}
               </button>
             )}
           </div>
@@ -192,10 +195,10 @@ export const SpreadsheetPreview: React.FC<SpreadsheetPreviewProps> = ({
                   ? 'bg-blue-50 text-blue-700 border-blue-200'
                   : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
               }`}
-              title="Show / hide specific columns for PDF export"
+              title="Filter PDF columns"
             >
               <Filter className="w-3.5 h-3.5" />
-              <span>Columns</span>
+              <span>{t.columnsBtn}</span>
               <span className="ml-0.5 px-1.5 py-0.2 rounded-full bg-slate-100 text-[10px] font-semibold text-slate-700">
                 {selectedColsForSheet.length}/{activeSheet.headers.length}
               </span>
@@ -208,7 +211,7 @@ export const SpreadsheetPreview: React.FC<SpreadsheetPreviewProps> = ({
                 onClick={() => setZoomLevel((z) => Math.max(70, z - 10))}
                 disabled={zoomLevel <= 70}
                 className="p-1 text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors cursor-pointer"
-                title="Zoom Out"
+                title={t.zoomOut}
               >
                 <ZoomOut className="w-3.5 h-3.5" />
               </button>
@@ -220,7 +223,7 @@ export const SpreadsheetPreview: React.FC<SpreadsheetPreviewProps> = ({
                 onClick={() => setZoomLevel((z) => Math.min(130, z + 10))}
                 disabled={zoomLevel >= 130}
                 className="p-1 text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors cursor-pointer"
-                title="Zoom In"
+                title={t.zoomIn}
               >
                 <ZoomIn className="w-3.5 h-3.5" />
               </button>
@@ -232,14 +235,14 @@ export const SpreadsheetPreview: React.FC<SpreadsheetPreviewProps> = ({
         {showColumnFilter && (
           <div className="p-3 bg-white border border-blue-200/70 rounded-xl shadow-xs animate-fade-in text-xs">
             <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
-              <span className="font-semibold text-slate-700">Columns to include in PDF:</span>
+              <span className="font-semibold text-slate-700">{t.columnsToInclude}</span>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => onSelectAllColumns(sheetName, !allColumnsChecked)}
                   className="text-xs text-blue-600 hover:text-blue-800 font-medium"
                 >
-                  {allColumnsChecked ? 'Deselect All' : 'Select All'}
+                  {allColumnsChecked ? t.deselectAll : t.selectAll}
                 </button>
               </div>
             </div>
@@ -322,8 +325,8 @@ export const SpreadsheetPreview: React.FC<SpreadsheetPreviewProps> = ({
                   className="py-12 text-center text-slate-400"
                 >
                   <TableIcon className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                  <p className="font-medium text-slate-600">No matching spreadsheet rows found</p>
-                  <p className="text-xs text-slate-400 mt-1">Try clearing your search query</p>
+                  <p className="font-medium text-slate-600">{t.noMatchingRows}</p>
+                  <p className="text-xs text-slate-400 mt-1">{t.tryClearingSearch}</p>
                 </td>
               </tr>
             ) : (
@@ -379,16 +382,16 @@ export const SpreadsheetPreview: React.FC<SpreadsheetPreviewProps> = ({
       <div className="p-3 bg-slate-50/80 flex flex-wrap items-center justify-between text-xs text-slate-500 gap-2">
         <div className="flex items-center gap-2">
           <span className="font-medium text-slate-700">
-            Showing {processedRows.length} of {activeSheet.rows.length} rows
+            {t.showingRowsOf} {processedRows.length} / {activeSheet.rows.length}
           </span>
-          {searchTerm && <span>(filtered)</span>}
+          {searchTerm && <span className="text-blue-600 font-semibold">{t.filteredBadge}</span>}
           <span>•</span>
-          <span>{visibleHeaders.filter((h) => h.isVisible).length} of {activeSheet.headers.length} columns active</span>
+          <span>{visibleHeaders.filter((h) => h.isVisible).length} / {activeSheet.headers.length} {t.columnsActive}</span>
         </div>
 
         <div className="flex items-center gap-3">
           <span className="text-[11px] text-slate-400 hidden sm:inline">
-            Click column headers to sort • Use checkboxes above to filter PDF columns
+            {t.tableTip}
           </span>
         </div>
       </div>

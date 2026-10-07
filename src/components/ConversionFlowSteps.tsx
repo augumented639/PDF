@@ -1,18 +1,20 @@
 import React from 'react';
 import { UploadCloud, Table, Sliders, FileDown, CheckCircle } from 'lucide-react';
+import { Translations } from '../i18n/translations';
 
 interface ConversionFlowStepsProps {
   currentStep: 1 | 2 | 3 | 4 | 5;
   onStepClick?: (step: 1 | 2 | 3 | 4 | 5) => void;
+  t: Translations;
 }
 
-export const ConversionFlowSteps: React.FC<ConversionFlowStepsProps> = ({ currentStep, onStepClick }) => {
+export const ConversionFlowSteps: React.FC<ConversionFlowStepsProps> = ({ currentStep, onStepClick, t }) => {
   const steps = [
-    { number: 1, label: 'Upload', icon: UploadCloud },
-    { number: 2, label: 'Preview', icon: Table },
-    { number: 3, label: 'Customize', icon: Sliders },
-    { number: 4, label: 'Convert', icon: FileDown },
-    { number: 5, label: 'Download', icon: CheckCircle },
+    { number: 1, label: t.stepUpload, icon: UploadCloud },
+    { number: 2, label: t.stepPreview, icon: Table },
+    { number: 3, label: t.stepCustomize, icon: Sliders },
+    { number: 4, label: t.stepConvert, icon: FileDown },
+    { number: 5, label: t.stepDownload, icon: CheckCircle },
   ];
 
   return (
@@ -21,7 +23,6 @@ export const ConversionFlowSteps: React.FC<ConversionFlowStepsProps> = ({ curren
         {steps.map((step, idx) => {
           const isCompleted = step.number < currentStep;
           const isCurrent = step.number === currentStep;
-          const isUpcoming = step.number > currentStep;
           const Icon = step.icon;
 
           return (
